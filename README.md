@@ -142,4 +142,6 @@ Htet Thu Aung
 
 Passionate about computer vision and AI
 
+[Gmail](htetthuaung.engr@gmail.com)
+
 [LinkedIn](https://www.linkedin.com/in/htetthuaung/)
