@@ -139,5 +139,6 @@ https://127.0.0.1:8000
 
 ### Author
 Htet Thu Aung
+
 Passionate about computer vision and AI
 [LinkedIn](https://www.linkedin.com/in/htetthuaung/)
