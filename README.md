@@ -100,10 +100,10 @@ git clone https://github.com/Htet-ThuAung/sku110k-yolov8-shelf-detector.git
 cd sku110k-yolov8-shelf-detector
 
 2. Install dependencies
-pip install -r requirements.txt
+`pip install -r requirements.txt`
 
 3. Run the app
-uvicorn scripts.main:app --reload
+`uvicorn scripts.main:app --reload`
 
 4. Open browser:
 https://127.0.0.1:8000
