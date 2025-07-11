@@ -19,7 +19,7 @@ This project is a real-time item detection and counting system built using YOLOv
 
 ### Demo GIF
 
-<img src="../outputs/shelf-detector.gif" width="700"/>
+<img src="../outputs/shelf-detection.gif" width="700"/>
 
 ### Static Detections
 
