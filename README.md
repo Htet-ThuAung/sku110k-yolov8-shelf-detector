@@ -1,16 +1,16 @@
 # SKU-110K Shelf Detector (YOLOv8 + FastAPI)
 
-This project is a real-time item detection and counting system built using YOLOv8 and FastAPI. Trained on the SKU110K dataset,it provides a clean web interface to upload shelf images, run inference, visualize detections, and log the results for analysis.
+This project is a real-time item detection and counting system built using YOLOv8 and FastAPI. Trained on the SKU110K dataset, it provides a clean web interface for uploading shelf images, running inference, visualizing detections, and logging the results for analysis.
   
 ---
 
 ## Features
 
-- Upload shelf images via web interface
+- Upload shelf images via the web interface
 - Detect and count items using a YOLOv8n model  
 - Display annotated results with bounding boxes
 - Show real-time `inference time` and `object count`
-- Save results (filename, count, duration, annotated image) in csv
+- Save results (filename, count, duration, annotated image) in CSV
 - Browse inference history on the homepage
 
 ---
@@ -48,7 +48,7 @@ sku110k-yolov8-shelf-detector/
 │   └── sku110k.yaml              # YOLOv8 dataset config
 │
 ├── data/
-│   └── download_sku110k.py       # Optional script to fetch dataset
+│   └── download_sku110k.py       # Optional script to fetch the dataset
 │
 ├── datasets/
 │   └── SKU-110K/
@@ -110,7 +110,7 @@ git clone https://github.com/Htet-ThuAung/sku110k-yolov8-shelf-detector.git
 
 
 ## Jupyter Notebook Demo
-- Introducing to SKU110K dataset
+- Introducing the SKU110K dataset
 - Single image + batch detection
 - Bounding box visualization
 - Training performance:
