@@ -1,0 +1,14 @@
+# YOLO format config for SKU-110K
+
+path: ./datasets/SKU-110K    # Root directory of the dataset
+train: train.txt    # Relative to 'path'
+val: val.txt
+test: test.txt
+
+names:    # Single class, called "object"
+  0: object
+
+# Additional training options to reduce memory usage
+batch: 4                     # Or try 2 if still crashing
+workers: 0                   # Use 0 workers to prevent multiprocessing memory issues
+imgsz: 640                   # Make sure this is set, default is usually fine

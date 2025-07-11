@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Shelf Detection Results</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        .result {
+            border: 1px solid #ccc;
+            margin-bottom: 20px;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        img {
+            max-width: 500px;
+            border: 1px solid #000;
+        }
+    </style>
+</head>
+<body>
+    <h1>Shelf Detection Results</h1>
+
+    <form action="/upload/" method="post" enctype="multipart/form-data">
+        <input type="file" name="file" required>
+        <button type="submit">Upload Image</button>
+    </form>
+
+    {% if results %}
+        <h2>Previous Results</h2>
+        {% for row in results %}
+            <div class="result">
+                <p><strong>Filename:</strong> {{ row["filename"] }}</p>
+                <p><strong>Count:</strong> {{ row["count"] }}</p>
+                <p><strong>Processing Time:</strong> {{ row["duration(s)"] }}s</p>
+                <img src="{{ row.image }}" alt="Annotated Image">
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>No results yet. Upload an image to begin.</p>
+    {% endif %}
+</body>
+</html>

@@ -1,0 +1,52 @@
+# === SYSTEM/ENV FILES ===
+.DS_Store
+Thumbs.db
+*.swp
+*.bak
+
+# === PYTHON FILES ===
+__pycache__/
+*.py[cod]
+*.so
+*.pyo
+
+# === ENVIRONMENTS ===
+.venv/
+venv/
+ENV/
+env/
+*.env
+
+# === IDEs & EDITORS ===
+.vscode/
+.idea/
+
+# === JUPYTER NOTEBOOK ===
+.ipynb_checkpoints/
+
+# === DATASETS ===
+datasets/
+
+# === TRAINING OUTPUTS ===
+outputs/sku110k_run/
+outputs/sku110k_continue/
+
+*.pt
+*.onnx
+*.tflite
+
+# === GIFs, VIDEOS, DEMOS ===
+*.mp4
+*.webm
+
+# === LOGS ===
+*.log
+
+# === TEMP FILES ===
+*.tmp
+*.bak
+
+# === EXPORTED MODELS ===
+yolov8n.pt
+yolov8n.yaml
+
