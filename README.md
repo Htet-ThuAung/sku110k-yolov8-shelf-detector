@@ -97,19 +97,19 @@ sku110k-yolov8-shelf-detector/
 1. Clone the repo
 
 git clone https://github.com/Htet-ThuAung/sku110k-yolov8-shelf-detector.git
-cd sku110k-yolov8-shelf-detector
+`cd sku110k-yolov8-shelf-detector`
 
 2. Install dependencies
 `pip install -r requirements.txt`
 
 3. Run the app
-`uvicorn scripts.main:app --reload`
+`uvicorn scripts.main: app --reload`
 
 4. Open browser:
-https://127.0.0.1:8000
+`https://127.0.0.1:8000`
 
 
-## Jupyter Noteook Demo
+## Jupyter Notebook Demo
 - Introducing to SKU110K dataset
 - Single image + batch detection
 - Bounding box visualization
