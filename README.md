@@ -102,11 +102,11 @@ git clone https://github.com/Htet-ThuAung/sku110k-yolov8-shelf-detector.git
 2. Install dependencies
 `pip install -r requirements.txt`
 
-3. Run the app
-`uvicorn scripts.main: app --reload`
+3. Run the app. `Activate your existing enviroment first.`
+`uvicorn scripts.main:app --reload`
 
-4. Open browser:
-`https://127.0.0.1:8000`
+5. Open browser:
+`http://127.0.0.1:8000`
 
 
 ## Jupyter Notebook Demo
