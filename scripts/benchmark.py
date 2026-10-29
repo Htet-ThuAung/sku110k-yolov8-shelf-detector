@@ -1,7 +1,7 @@
 """Reproducible single-image inference benchmark for ShelfSense.
 
 Example:
-    python scripts/benchmark.py --model outputs/sku110k_continue/weights/best.pt --source datasets/SKU-110K/test --device 0 --imgsz 640 --warmup 5 --runs 30 --output-dir reports/benchmark
+    python scripts/benchmark.py --model outputs/sku110k_continue/weights/best.pt --source datasets/SKU-110K/test --device 0 --imgsz 640 --warmup 5 --runs 30 --max-images 50 --output-dir reports/benchmark
 
 This measures Ultralytics prediction latency (preprocessing + inference +
 postprocessing) for each image. It excludes model loading, upload/network time,
@@ -54,7 +54,7 @@ def git_revision():
         return None
 
 
-def collect_images(source):
+def collect_images(source, max_images):
     source = Path(source)
     if not source.exists():
         raise FileNotFoundError(f"Benchmark source does not exist: {source}")
@@ -76,7 +76,9 @@ def collect_images(source):
         if image is None:
             invalid_images.append(str(path))
         else:
-            valid_images.append((path, image))
+            valid_images.append(path)
+        if max_images and len(valid_images) >= max_images:
+            break
 
     if not valid_images:
         raise ValueError(f"No readable images found at: {source}")
@@ -177,6 +179,7 @@ def write_report(output_dir, summary, per_image_rows):
         f"- Confidence threshold: {summary['settings']['confidence']}",
         f"- Warm-up predictions per image: {summary['settings']['warmup']}",
         f"- Measured predictions per image: {summary['settings']['runs']}",
+        f"- Maximum images: {summary['settings']['max_images'] or 'all readable images'}",
         f"- Device requested: {hardware['requested_device']}",
         f"- Device selected: {hardware['selected_device']}",
         f"- GPU: {hardware['gpu_name'] or 'not used / not detected'}",
@@ -240,12 +243,12 @@ def run_benchmark(args):
         raise FileNotFoundError(
             f"Model checkpoint not found: {model_path}. Provide the trained best.pt path."
         )
-    if args.imgsz < 1 or args.warmup < 0 or args.runs < 1:
-        raise ValueError("imgsz and runs must be positive; warmup must be zero or greater.")
+    if args.imgsz < 1 or args.warmup < 0 or args.runs < 1 or args.max_images < 0:
+        raise ValueError("imgsz and runs must be positive; warmup and max-images must be zero or greater.")
     if not 0.0 <= args.conf <= 1.0:
         raise ValueError("Confidence threshold must be between 0 and 1.")
 
-    images, unreadable = collect_images(args.source)
+    images, unreadable = collect_images(args.source, args.max_images)
 
     import torch
     from ultralytics import YOLO
@@ -260,7 +263,10 @@ def run_benchmark(args):
     total_detections = 0
     benchmark_started = time.perf_counter()
 
-    for image_path, image in images:
+    for image_path in images:
+        image = cv2.imread(str(image_path))
+        if image is None:
+            raise RuntimeError(f"Image became unreadable during benchmark: {image_path}")
         image_latencies = []
         result = None
 
@@ -326,6 +332,7 @@ def run_benchmark(args):
             "confidence": args.conf,
             "warmup": args.warmup,
             "runs": args.runs,
+            "max_images": args.max_images,
             "timing_scope": "Ultralytics per-image predict call; excludes model loading and application I/O",
         },
         "hardware": hardware,
@@ -350,11 +357,12 @@ def parse_args():
     )
     parser.add_argument("--model", default="outputs/sku110k_continue/weights/best.pt")
     parser.add_argument("--source", required=True, help="One image or a directory of images (searched recursively).")
-    parser.add_argument("--device", default="auto", help='Use "auto", "cpu", "0", or "cuda" (default: auto).')
+    parser.add_argument("--device", choices=["auto", "cpu", "0"], default="auto", help='Use "auto", "cpu", or "0" for the first CUDA GPU (default: auto).')
     parser.add_argument("--imgsz", type=int, default=640, help="Inference image size (default: 640).")
     parser.add_argument("--conf", type=float, default=0.4, help="Detection confidence threshold (default: 0.4).")
     parser.add_argument("--warmup", type=int, default=5, help="Warm-up predictions per image (default: 5).")
     parser.add_argument("--runs", type=int, default=30, help="Measured predictions per image (default: 30).")
+    parser.add_argument("--max-images", type=int, default=50, help="Maximum sorted images to benchmark; use 0 for all (default: 50).")
     parser.add_argument("--output-dir", default="reports/benchmark")
     return parser.parse_args()
 
