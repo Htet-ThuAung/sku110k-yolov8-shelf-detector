@@ -1,7 +1,7 @@
 from fastapi import APIRouter, UploadFile, File, HTTPException
+import html
 from fastapi.responses import HTMLResponse
 from ultralytics import YOLO
-import shutil
 import os
 import csv
 import cv2
@@ -105,7 +105,7 @@ async def predict_shelf(file: UploadFile = File(...)):
 
         return HTMLResponse(
             f"""
-            <h2>Prediction for {safe_filename}</h2>
+            <h2>Prediction for {html.escape(safe_filename)}</h2>
             <p><strong>Count:</strong> {count}</p>
             <p><strong>Processing Time:</strong> {duration:.2f}s</p>
             <img src="{image_url}" width="500"><br><br>
