@@ -1,5 +1,4 @@
 """API tests use a fake YOLO model; no checkpoint or GPU is required."""
-import io
 import sys
 import types
 
@@ -142,6 +141,20 @@ def tmp_path_path(client, filename):
     if filename == "results.csv":
         return __import__("pathlib").Path(shelf_api.CSV_PATH)
     return __import__("pathlib").Path(shelf_api.ANNOTATED_DIR) / filename
+
+
+def test_empty_detection_output_returns_zero_count(client, monkeypatch, png_bytes):
+    model = FakeModel(FakeResult(confidences=(), coordinates=()))
+    monkeypatch.setattr(shelf_api, "model", model)
+
+    response = client.post(
+        "/upload/",
+        files={"file": ("empty-shelf.png", png_bytes, "image/png")},
+    )
+
+    assert response.status_code == 200
+    assert "Count:</strong> 0" in response.text
+    assert model.calls == 1
 
 
 def test_model_exception_returns_generic_500_without_internal_details(client, monkeypatch, png_bytes):
