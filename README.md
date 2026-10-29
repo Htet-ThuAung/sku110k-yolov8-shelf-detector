@@ -1,93 +1,81 @@
-# SKU-110K Shelf Detector — YOLOv8 + FastAPI
+# ShelfSense — Retail Shelf Object Detection & Counting
 
-A computer vision application that detects and counts products on retail shelf images using a fine-tuned YOLOv8n model. The FastAPI web app lets users upload an image, inspect bounding-box detections, view the predicted object count and inference time, and revisit previous results.
+A computer-vision demo that detects visible products in retail shelf images using a fine-tuned **YOLOv8n** model. A **FastAPI** web application accepts an uploaded image, draws detection boxes, displays the number of detected objects and inference time, and records results in a CSV file.
 
-## Highlights
-
-- Fine-tuned YOLOv8n on the SKU-110K retail shelf dataset
-- Upload images through a FastAPI web interface
-- Draw bounding boxes and calculate the detected-object count
-- Display inference time and detection count
-- Save inference metadata to CSV and show previous results on the homepage
-- Include training and validation plots for model evaluation
+> **Scope:** This is a single-class object detector for visible shelf items. It does not identify individual SKUs, product names, prices, or stock-keeping-unit IDs, and its count should not be treated as an inventory audit.
 
 ## Demo
 
 ### Web application
 
-![Shelf detection application demo](outputs/shelf-detection.gif)
+![ShelfSense web application demo](outputs/shelf-detection.gif)
 
 ### Example predictions
 
 | Example 1 | Example 2 |
 |---|---|
-| ![Detected products example 1](outputs/inference_api_results/annotated/annotated_test_2.jpg) | ![Detected products example 2](outputs/inference_api_results/annotated/annotated_test_5.jpg) |
-| ![Detected products example 3](outputs/inference_api_results/annotated/annotated_test_7.jpg) | ![Detected products example 4](outputs/inference_api_results/annotated/annotated_test_11.jpg) |
+| ![Annotated shelf example 1](outputs/inference_api_results/annotated/annotated_test_2.jpg) | ![Annotated shelf example 2](outputs/inference_api_results/annotated/annotated_test_5.jpg) |
+| ![Annotated shelf example 3](outputs/inference_api_results/annotated/annotated_test_7.jpg) | ![Annotated shelf example 4](outputs/inference_api_results/annotated/annotated_test_11.jpg) |
 
-## Model and evaluation
+## Results
 
-- **Model:** YOLOv8n
-- **Dataset:** SKU-110K
-- **Task:** Single-class product/object detection
-- **Training configuration:** 20 epochs across the initial and continued training runs; batch size 2
-- **Training hardware:** ASUS TUF FX505DD
-- **Inference confidence threshold in the web app:** 0.40
+The following values are the validation metrics documented for the checkpoint's evaluation run. Results can change with the checkpoint, dataset split, image size, and evaluation configuration.
 
-The following validation metrics are from the evaluation run represented by the plots below. Metrics can vary by checkpoint and validation run.
-
-| Metric | Validation score |
+| Metric | Validation result |
 |---|---:|
 | Precision | 88.35% |
 | Recall | 79.67% |
 | mAP@50 | 87.63% |
 | mAP@50–95 | 54.83% |
 
-- **Precision:** Fraction of predicted detections that are correct.
-- **Recall:** Fraction of ground-truth objects detected by the model.
-- **mAP@50:** Mean average precision at an intersection-over-union (IoU) threshold of 0.50.
-- **mAP@50–95:** Mean average precision averaged over IoU thresholds from 0.50 to 0.95.
+- **Precision** measures how many predicted detections are correct.
+- **Recall** measures how many ground-truth objects the model detects.
+- **mAP@50** is mean average precision at an IoU threshold of 0.50.
+- **mAP@50–95** averages mAP over IoU thresholds from 0.50 through 0.95.
 
-### Training results
+### Training and validation plots
 
-![YOLO training results](results/results.png)
+![Training results](results/results.png)
 
-### Precision–recall curve
+| Precision–recall | Precision vs. confidence |
+|---|---|
+| ![Precision-recall curve](results/PR_curve.png) | ![Precision confidence curve](results/P_curve.png) |
 
-![Precision-recall curve](results/PR_curve.png)
+| Recall vs. confidence | F1 vs. confidence |
+|---|---|
+| ![Recall confidence curve](results/R_curve.png) | ![F1 confidence curve](results/F1_curve.png) |
 
-### Precision vs. confidence threshold
+## Features
 
-![Precision-confidence curve](results/P_curve.png)
+- Fine-tuned YOLOv8n model trained on the SKU-110K retail shelf dataset.
+- Image upload through a simple browser interface.
+- Bounding-box annotations, detected-object count, and per-image processing time.
+- CSV history displayed on the home page.
+- Training plots and sample predictions for inspection.
 
-### Recall vs. confidence threshold
-
-![Recall-confidence curve](results/R_curve.png)
-
-### F1 score vs. confidence threshold
-
-![F1-confidence curve](results/F1_curve.png)
-
-## How the application works
+## Architecture
 
 ```mermaid
 flowchart TD
-    A[Upload shelf image] --> B[FastAPI endpoint]
-    B --> C[YOLOv8n inference]
-    C --> D[Bounding-box predictions]
-    D --> E[Count detected objects]
-    E --> F[Draw boxes and overlay count and time]
-    F --> G[Save annotated image and CSV record]
-    G --> H[Display prediction and inference history]
+    A[Browser: upload shelf image] --> B[FastAPI /upload/ endpoint]
+    B --> C[YOLOv8n checkpoint]
+    C --> D[Detections above confidence threshold]
+    D --> E[Count detected boxes]
+    E --> F[Draw boxes and overlay count/time]
+    F --> G[Save annotated image]
+    G --> H[Append result to CSV]
+    H --> I[Return result page and image]
+    I --> J[Home page shows history]
 ```
 
-## Tech stack
+### Tech stack
 
-- **Python** — application and inference logic
+- **Python 3.10** — application runtime
 - **Ultralytics YOLOv8 / PyTorch** — object detection
-- **FastAPI + Uvicorn** — web application and API
-- **OpenCV** — image processing and bounding-box annotation
-- **Jinja2 + HTML** — upload form and inference history
-- **CSV** — simple inference-result logging
+- **FastAPI + Uvicorn** — web application and inference endpoint
+- **OpenCV** — image loading and annotation
+- **Jinja2 + HTML** — browser interface
+- **CSV** — local inference history
 
 ## Run locally
 
@@ -95,7 +83,8 @@ flowchart TD
 
 - Git
 - Python 3.10
-- A compatible PyTorch installation for your CPU/GPU environment
+- Internet access to install dependencies
+- A compatible PyTorch build for your machine (CUDA GPU optional)
 
 ### 1. Clone the repository
 
@@ -104,94 +93,138 @@ git clone https://github.com/Htet-ThuAung/sku110k-yolov8-shelf-detector.git
 cd sku110k-yolov8-shelf-detector
 ```
 
-### 2. Create and activate a virtual environment (Windows)
+### 2. Create and activate a virtual environment
+
+**Windows (PowerShell or Command Prompt):**
 
 ```bat
 python -m venv .venv
 .venv\Scripts\activate
 ```
 
+**Linux / macOS:**
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
 ### 3. Install dependencies
 
 ```bash
 python -m pip install --upgrade pip
-pip install -r requirements.txt
+python -m pip install -r requirements.txt
 ```
 
-The requirements file pins PyTorch/CUDA-related packages for the development environment. If pip cannot resolve the pinned PyTorch packages on your machine, install a compatible PyTorch build for your hardware from the [official PyTorch installation guide](https://pytorch.org/get-started/locally/) and then install the remaining project dependencies.
+The provided requirements file pins PyTorch and torchvision CUDA 11.8 wheels for the development environment. If these wheels are incompatible with your operating system or hardware, install a matching PyTorch/torchvision build using the [official PyTorch installation selector](https://pytorch.org/get-started/locally/), then install the remaining dependencies from `requirements.txt` without reinstalling incompatible pinned PyTorch packages.
 
-### 4. Check the trained model checkpoint
+### 4. Check the model checkpoint
 
-The application loads the trained weights from:
+The application expects the trained checkpoint at:
 
 ```text
 outputs/sku110k_continue/weights/best.pt
 ```
 
-Make sure this file exists before starting the application. The model-loading path is configured in `src/api.py`.
+Make sure this file exists before starting the app. If it is missing from your checkout, obtain the trained checkpoint separately or train the model locally (see [Training](#training)). The model path is currently configured in `src/api.py`.
 
-### 5. Start the web app
+### 5. Start the application
 
-Run this command from the repository root:
+Run from the repository root:
 
 ```bash
 python -m uvicorn scripts.main:app --reload
 ```
 
-Open [http://127.0.0.1:8000](http://127.0.0.1:8000) in your browser, upload a shelf image, and inspect the detection results.
+Open [http://127.0.0.1:8000](http://127.0.0.1:8000) in your browser. Upload a shelf image to see the annotated result, detected-object count, and processing time.
 
-> The application writes uploaded images, annotated images, and inference records under `outputs/inference_api_results/`. Avoid committing personal or sensitive images from this directory.
+### Routes
 
-## Repository structure
+| Route | Method | Purpose |
+|---|---|---|
+| `/` | GET | Upload page and saved inference history |
+| `/upload/` | POST | Accept an image and run detection |
+| `/static/annotated/{filename}` | GET | Serve a saved annotated image |
 
-```text
-sku110k-yolov8-shelf-detector/
-├── configs/
-│   └── sku110k.yaml          # Dataset configuration
-├── data/
-│   └── download_sku110k.py   # Dataset download helper
-├── notebooks/
-│   └── sku110k_demo.ipynb    # Notebook walkthrough
-├── outputs/
-│   ├── inference_api_results/
-│   │   ├── annotated/        # Saved annotated predictions
-│   │   └── csvfile/          # Inference history
-│   ├── shelf-detection.gif   # Application demo
-│   └── sku110k_continue/     # Continued training output/checkpoint
-├── results/                  # Model evaluation plots
-├── scripts/
-│   ├── main.py               # FastAPI application entry point
-│   ├── train.py              # Training CLI
-│   ├── infer_and_count.py    # Command-line inference
-│   └── filter_corrupt_image.py
-├── src/
-│   ├── api.py                # Upload and inference endpoint
-│   ├── counting.py           # Detection counting logic
-│   ├── detect.py
-│   └── train.py              # Training implementation
-├── templates/
-│   └── index.html            # Upload form and history page
-├── requirements.txt
-└── README.md
-```
+## Outputs and generated files
 
-The dataset directory is not included in Git. Prepare the SKU-110K dataset locally according to `configs/sku110k.yaml` before running training.
+The application creates the following paths under `outputs/inference_api_results/`:
 
-## Training
+- Uploaded input images
+- `annotated/` — annotated output images
+- `csvfile/results.csv` — filename, object count, processing duration, and image path
 
-The training CLI defaults to 10 epochs, batch size 2, image size 640, and the dataset config `configs/sku110k.yaml`. For example:
+These are local demo outputs. Avoid uploading private or sensitive images, and review generated files before committing them to Git.
+
+## Model and training
+
+- **Model:** YOLOv8n
+- **Dataset:** SKU-110K
+- **Task:** Single-class object detection (class name: `object`)
+- **Inference confidence threshold:** 0.40
+- **Documented training configuration:** 20 epochs across initial and continued training runs; batch size 2
+- **Development hardware:** ASUS TUF FX505DD
+
+The dataset is not bundled with the repository. The configuration in `configs/sku110k.yaml` expects a local dataset under `datasets/SKU-110K`, with train, validation, and test image lists referenced by the YAML file.
+
+Example training command:
 
 ```bash
 python scripts/train.py --epochs 10 --batch 2 --imgsz 640 --name sku110k_run
 ```
 
-Adjust these options to match your hardware. Training requires the dataset to be downloaded and prepared in the layout referenced by the YAML configuration.
+Adjust the batch size and other options to suit your hardware. Training requires the dataset to be prepared in the configured layout.
 
-## Current scope and possible next steps
+## Repository structure
 
-- Improve evaluation with a clearly documented held-out test set
-- Add automated tests for counting and API behavior
-- Add containerized deployment after the local setup is reproducible
+```text
+.
+├── configs/
+│   └── sku110k.yaml              # Dataset configuration
+├── data/
+│   └── download_sku110k.py       # Dataset download helper
+├── notebooks/
+│   └── sku110k_demo.ipynb        # Notebook walkthrough
+├── outputs/
+│   ├── inference_api_results/    # Runtime outputs (created by the app)
+│   ├── shelf-detection.gif       # Demo animation
+│   └── sku110k_continue/         # Expected trained checkpoint location
+├── results/                      # Evaluation plots
+├── scripts/
+│   ├── main.py                   # FastAPI entry point
+│   ├── train.py                  # Training CLI
+│   ├── infer_and_count.py        # Command-line inference
+│   └── filter_corrupt_image.py
+├── src/
+│   ├── api.py                    # Upload route and inference logic
+│   ├── counting.py               # Detection counting helper
+│   ├── detect.py
+│   └── train.py                  # Training implementation
+├── templates/
+│   └── index.html                # Upload form and history page
+├── requirements.txt
+└── README.md
+```
+
+## Known limitations
+
+- **No SKU recognition:** detections belong to one generic class; the app cannot tell one product type or SKU from another.
+- **Counting is approximate:** occlusion, tightly packed products, reflections, unusual packaging, image blur, and camera angle can cause missed or duplicate detections.
+- **Confidence threshold affects results:** the web app uses 0.40; changing it can change both the count and precision/recall trade-off.
+- **Validation metrics are not a business guarantee:** the reported scores describe a particular evaluation run and do not establish performance for every store, camera, or lighting condition.
+- **No production hardening yet:** this is a local portfolio demo, not an authenticated, rate-limited, monitored production service. Review upload size/type validation and error handling before exposing it to untrusted users.
+- **Local persistence only:** images and history are stored on disk and in CSV; there is no database, multi-user access control, or cloud storage.
+- **Latency is environment-dependent:** the displayed time is measured around model inference in the application and should not be interpreted as an end-to-end service benchmark. Hardware, image dimensions, and device selection affect timing.
+- **Reproducibility depends on artifacts:** the dataset is not included. Ensure the trained checkpoint exists at the expected path, and retain the dataset split and training configuration if reproducing the reported metrics.
+
+## Possible next steps
+
+- Add automated tests for counting and API behavior.
+- Add file type/size validation and safer error responses.
+- Benchmark inference on a documented CPU/GPU and image size.
+- Add Docker packaging and a clean-clone smoke test.
+- Evaluate on a clearly documented held-out test set.
+- Explore tracking or SKU-level classification as separate extensions.
 
 ## Author
 
