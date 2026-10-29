@@ -146,6 +146,21 @@ Open [http://127.0.0.1:8000](http://127.0.0.1:8000) in your browser. Upload a sh
 | `/upload/` | POST | Accept an image and run detection |
 | `/static/annotated/{filename}` | GET | Serve a saved annotated image |
 
+## Automated tests
+
+The API tests use a fake YOLO model, so they do not need the trained checkpoint or a GPU.
+
+Install the development test dependencies in your active virtual environment:
+
+```bash
+python -m pip install -r requirements-dev.txt
+python -m pytest -q
+```
+
+The suite covers unsupported file types, empty uploads, invalid image bytes, successful inference output and saved artifacts, zero detections, and model failures. It also checks that rejected uploads do not invoke the model and that internal exception details are not returned to clients.
+
+These are automated regression tests, not a claim that the full app has been run against a fresh installation or a real trained checkpoint.
+
 ## Outputs and generated files
 
 The application creates the following paths under `outputs/inference_api_results/`:
