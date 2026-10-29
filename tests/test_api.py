@@ -13,7 +13,7 @@ from fastapi.testclient import TestClient
 # so test collection does not require a downloaded model checkpoint.
 fake_ultralytics = types.ModuleType("ultralytics")
 fake_ultralytics.YOLO = lambda *args, **kwargs: None
-sys.modules.setdefault("ultralytics", fake_ultralytics)
+sys.modules["ultralytics"] = fake_ultralytics
 
 from src import api as shelf_api  # noqa: E402
 
