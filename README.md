@@ -169,12 +169,12 @@ The benchmark uses a sorted, repeatable selection of up to 50 readable images by
 
 ### Run it
 
-Use the same checkpoint and a fixed set of test images for comparisons. The source can be one image or a directory searched recursively.
+Use the same checkpoint and a fixed set of test images for comparisons. The source can be one image, a directory searched recursively, or a text file containing one image path per line. The recommended command uses the configured `test.txt` list so the benchmark stays on the test split.
 
 **Windows (PowerShell or Command Prompt):**
 
 ```bat
-python scripts/benchmark.py --model outputs/sku110k_continue/weights/best.pt --source datasets/SKU-110K --device 0 --imgsz 640 --conf 0.4 --warmup 5 --runs 30 --max-images 50 --output-dir reports/benchmark
+python scripts/benchmark.py --model outputs/sku110k_continue/weights/best.pt --source datasets/SKU-110K/test.txt --device 0 --imgsz 640 --conf 0.4 --warmup 5 --runs 30 --max-images 50 --output-dir reports/benchmark
 ```
 
 **CPU-only run:**
