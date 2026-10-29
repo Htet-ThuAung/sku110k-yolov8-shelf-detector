@@ -156,7 +156,7 @@ def write_report(output_dir, summary, per_image_rows):
     fieldnames = [
         "image", "image_sha256", "width", "height", "measured_runs",
         "mean_ms", "median_ms", "p95_ms", "min_ms", "max_ms",
-        "throughput_images_per_second", "mean_detections",
+        "throughput_images_per_second", "detections_in_last_run",
     ]
     with csv_path.open("w", newline="", encoding="utf-8") as file:
         writer = csv.DictWriter(file, fieldnames=fieldnames)
@@ -221,7 +221,7 @@ def write_report(output_dir, summary, per_image_rows):
         "Run the same command with the same checkpoint, input images, software versions, device, image size, confidence threshold, warm-up count, and measured run count. Compare the model SHA-256 and per-image SHA-256 values to confirm the artifacts match.",
         "",
         "~~~bash",
-        "python scripts/benchmark.py --model outputs/sku110k_continue/weights/best.pt --source datasets/SKU-110K/test --device 0 --imgsz 640 --conf 0.4 --warmup 5 --runs 30 --output-dir reports/benchmark",
+        "python scripts/benchmark.py --model outputs/sku110k_continue/weights/best.pt --source datasets/SKU-110K/test --device 0 --imgsz 640 --conf 0.4 --warmup 5 --runs 30 --max-images 50 --output-dir reports/benchmark",
         "~~~",
         "",
         "## Interpretation and limitations",
@@ -310,7 +310,7 @@ def run_benchmark(args):
             "min_ms": round(stats["min_ms"], 4),
             "max_ms": round(stats["max_ms"], 4),
             "throughput_images_per_second": round(stats["throughput_images_per_second"], 4),
-            "mean_detections": detections,
+            "detections_in_last_run": detections,
         })
         print(
             f"{image_path.name}: mean={stats['mean_ms']:.2f} ms, "
@@ -338,7 +338,7 @@ def run_benchmark(args):
         "hardware": hardware,
         "overall_latency": summarize_latencies(all_latencies),
         "total_detections_in_final_run_per_image": total_detections,
-        "benchmark_elapsed_seconds_including_setup": round(elapsed_seconds, 3),
+        "benchmark_loop_elapsed_seconds": round(elapsed_seconds, 3),
         "per_image_results": per_image_rows,
     }
     output_dir = Path(args.output_dir)
