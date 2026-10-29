@@ -59,7 +59,17 @@ def collect_images(source, max_images):
     if not source.exists():
         raise FileNotFoundError(f"Benchmark source does not exist: {source}")
 
-    if source.is_file():
+    if source.is_file() and source.suffix.lower() == ".txt":
+        candidates = []
+        for line in source.read_text(encoding="utf-8").splitlines():
+            entry = line.strip()
+            if not entry or entry.startswith("#"):
+                continue
+            image_path = Path(entry)
+            if not image_path.is_absolute():
+                image_path = source.parent / image_path
+            candidates.append(image_path)
+    elif source.is_file():
         candidates = [source] if source.suffix.lower() in IMAGE_EXTENSIONS else []
     elif source.is_dir():
         candidates = sorted(
@@ -221,7 +231,7 @@ def write_report(output_dir, summary, per_image_rows):
         "Run the same command with the same checkpoint, input images, software versions, device, image size, confidence threshold, warm-up count, and measured run count. Compare the model SHA-256 and per-image SHA-256 values to confirm the artifacts match.",
         "",
         "~~~bash",
-        "python scripts/benchmark.py --model outputs/sku110k_continue/weights/best.pt --source datasets/SKU-110K/test --device 0 --imgsz 640 --conf 0.4 --warmup 5 --runs 30 --max-images 50 --output-dir reports/benchmark",
+        "python scripts/benchmark.py --model outputs/sku110k_continue/weights/best.pt --source datasets/SKU-110K/test.txt --device 0 --imgsz 640 --conf 0.4 --warmup 5 --runs 30 --max-images 50 --output-dir reports/benchmark",
         "~~~",
         "",
         "## Interpretation and limitations",
