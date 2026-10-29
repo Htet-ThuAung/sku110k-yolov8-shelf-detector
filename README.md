@@ -161,6 +161,38 @@ The suite covers unsupported file types, empty uploads, invalid image bytes, suc
 
 These are automated regression tests, not a claim that the full app has been run against a fresh installation or a real trained checkpoint.
 
+## Reproducible inference benchmark
+
+ShelfSense includes a benchmark script that measures per-image YOLO prediction latency and writes a Markdown report, JSON summary, and per-image CSV. It records the model checkpoint SHA-256, each tested image's SHA-256, Git revision when available, package versions, operating system, CPU/GPU details, image size, confidence threshold, warm-up count, and measured run count.
+
+The benchmark uses a sorted, repeatable selection of up to 50 readable images by default, which avoids loading an entire large dataset into memory. Use `--max-images 0` to include every readable image. The report measures the Ultralytics prediction call (preprocessing, inference, and postprocessing); it excludes model loading, upload/network time, drawing annotations, writing images, and CSV persistence. GPU calls are synchronized for more meaningful timing when CUDA is selected.
+
+### Run it
+
+Use the same checkpoint and a fixed set of test images for comparisons. The source can be one image, a directory searched recursively, or a text file containing one image path per line. The recommended command uses the configured `test.txt` list so the benchmark stays on the test split.
+
+**Windows (PowerShell or Command Prompt):**
+
+```bat
+python scripts/benchmark.py --model outputs/sku110k_continue/weights/best.pt --source datasets/SKU-110K/test.txt --device 0 --imgsz 640 --conf 0.4 --warmup 5 --runs 30 --max-images 50 --output-dir reports/benchmark
+```
+
+**CPU-only run:**
+
+```bash
+python scripts/benchmark.py --model outputs/sku110k_continue/weights/best.pt --source path/to/fixed-test-images --device cpu --imgsz 640 --conf 0.4 --warmup 5 --runs 30 --max-images 50 --output-dir reports/benchmark-cpu
+```
+
+Replace the source path with a directory that exists in your local dataset. Keep the source images, checkpoint, device, image size, confidence threshold, warm-up count, and run count the same when comparing runs.
+
+The output directory contains:
+
+- `benchmark_report.md` — human-readable results and environment details.
+- `benchmark_summary.json` — machine-readable settings, aggregate latency, environment, and artifact hashes.
+- `benchmark_per_image.csv` — latency statistics and input-image hashes for each tested image.
+
+The report provides mean, median, 95th-percentile, minimum and maximum latency, plus a sequential throughput estimate (1000 divided by mean latency). This is a local single-image benchmark, **not** an end-to-end FastAPI benchmark or a concurrent-user load test. Do not publish performance values until you have run the script on the stated hardware; speed results vary by device and environment.
+
 ## Outputs and generated files
 
 The application creates the following paths under `outputs/inference_api_results/`:
