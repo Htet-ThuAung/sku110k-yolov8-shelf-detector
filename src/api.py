@@ -49,7 +49,7 @@ async def predict_shelf(file: UploadFile = File(...)):
                 detail="Unsupported image type. Upload JPG, JPEG, PNG, or WEBP.",
             )
 
-        contents = await file.read()
+        contents = await file.read(MAX_UPLOAD_BYTES + 1)
         if not contents:
             raise HTTPException(status_code=400, detail="The uploaded file is empty.")
         if len(contents) > MAX_UPLOAD_BYTES:
