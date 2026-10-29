@@ -227,7 +227,7 @@ Adjust the batch size and other options to suit your hardware. Training requires
 - **Counting is approximate:** occlusion, tightly packed products, reflections, unusual packaging, image blur, and camera angle can cause missed or duplicate detections.
 - **Confidence threshold affects results:** the web app uses 0.40; changing it can change both the count and precision/recall trade-off.
 - **Validation metrics are not a business guarantee:** the reported scores describe a particular evaluation run and do not establish performance for every store, camera, or lighting condition.
-- **No production hardening yet:** this is a local portfolio demo, not an authenticated, rate-limited, monitored production service. Review upload size/type validation and error handling before exposing it to untrusted users.
+- **Not production-hardened:** basic extension, image-decoding, and 10 MB upload checks plus generic error responses are implemented, but the app still lacks authentication, rate limiting, monitoring, and broader security review.
 - **Local persistence only:** images and history are stored on disk and in CSV; there is no database, multi-user access control, or cloud storage.
 - **Latency is environment-dependent:** the displayed time is measured around model inference in the application and should not be interpreted as an end-to-end service benchmark. Hardware, image dimensions, and device selection affect timing.
 - **Reproducibility depends on artifacts:** the dataset is not included. Ensure the trained checkpoint exists at the expected path, and retain the dataset split and training configuration if reproducing the reported metrics.
