@@ -40,3 +40,16 @@ def test_collect_images_skips_unreadable_files(tmp_path):
 
     assert [path.name for path in paths] == ["good.png"]
     assert unreadable == [str(tmp_path / "bad.png")]
+
+
+def test_collect_images_reads_relative_paths_from_list_file(tmp_path):
+    image = np.zeros((8, 8, 3), dtype=np.uint8)
+    ok, encoded = cv2.imencode(".png", image)
+    assert ok
+    (tmp_path / "one.png").write_bytes(encoded.tobytes())
+    (tmp_path / "test.txt").write_text("# fixed benchmark set\none.png\n", encoding="utf-8")
+
+    paths, unreadable = collect_images(tmp_path / "test.txt", max_images=0)
+
+    assert paths == [tmp_path / "one.png"]
+    assert unreadable == []
