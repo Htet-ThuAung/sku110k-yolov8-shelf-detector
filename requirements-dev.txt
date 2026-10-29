@@ -1,0 +1,7 @@
+# Lightweight dependencies for tests; avoids installing the CUDA training stack.
+fastapi==0.115.14
+python-multipart==0.0.20
+opencv-python-headless==4.11.0.86
+numpy==1.24.4
+pytest==8.3.5
+httpx==0.28.1
